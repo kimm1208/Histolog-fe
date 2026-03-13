@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "narrative",
+    "slug": "narrative",
+    "scheme": "narrative",
+    "version": "1.0.0",
+    "android": {
+      "package": "com.anonymous.narrative"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e24d32b2-6c86-4b49-a29c-53cedc6d1421"
+      }
+    }
+  }
+}
