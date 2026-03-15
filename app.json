@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "narrative",
-    "slug": "narrative",
-    "scheme": "narrative",
+    "name": "Histolog",
+    "slug": "histolog",
+    "scheme": "histolog",
     "version": "1.0.0",
     "android": {
-      "package": "com.anonymous.narrative"
+      "package": "com.anonymous.histolog"
     },
     "extra": {
       "eas": {

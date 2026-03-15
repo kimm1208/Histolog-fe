@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 
 export const useChatLogic = (baseUrl, token) => {
-    const [messages, setMessages] = useState([]); // 현재 대화 내용
-    const [sessions, setSessions] = useState([]); // 대화 목록 (사이드바용)
-    const [sessionId, setSessionId] = useState(''); // 현재 활성화된 세션 ID
+    const [messages, setMessages] = useState([]);
+    const [sessions, setSessions] = useState([]);
+    const [sessionId, setSessionId] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // 1. 대화 목록 조회 (GET /api/chat/sessions)
+    // 1. 대화 목록 가져오기
     const fetchSessions = async () => {
         try {
             const res = await fetch(`${baseUrl}/api/chat/sessions`, {
@@ -16,11 +16,11 @@ export const useChatLogic = (baseUrl, token) => {
             const data = await res.json();
             if (res.ok) setSessions(data.sessions || []);
         } catch (err) {
-            console.error("목록 로드 실패:", err);
+            console.error("세션 목록 로드 실패:", err);
         }
     };
 
-    // 2. 새 대화 시작 (POST /api/chat/sessions)
+    // 2. 새 대화 시작 (이 함수가 정의되어 있어야 합니다!)
     const startNewChat = async () => {
         setLoading(true);
         try {
@@ -31,20 +31,19 @@ export const useChatLogic = (baseUrl, token) => {
             const data = await res.json();
             if (res.ok) {
                 setSessionId(data.session);
-                setMessages([]); // 화면 초기화
-                fetchSessions(); // 목록 갱신
+                setMessages([]);
+                fetchSessions();
             }
         } catch (err) {
-            Alert.alert("에러", "새 세션 생성에 실패했습니다.");
+            console.error("새 대화 시작 실패:", err);
         } finally {
             setLoading(false);
         }
     };
 
-    // 3. 메시지 전송 (POST /api/chat/sessions/{sessionId}/messages)
+    // 3. 메시지 전송
     const sendMessage = async (content) => {
-        if (!content || !sessionId) return;
-
+        if (!content) return;
         setMessages(prev => [...prev, { role: 'user', content }]);
         setLoading(true);
 
@@ -58,22 +57,21 @@ export const useChatLogic = (baseUrl, token) => {
                 body: JSON.stringify({ content })
             });
             const data = await res.json();
-
             if (res.ok) {
-                // 백엔드 응답 data 필드 사용
                 setMessages(prev => [...prev, { role: 'assistant', content: data.data }]);
             }
         } catch (err) {
-            console.error("전송 에러:", err);
+            Alert.alert("연결 실패", "서버에 연결할 수 없습니다.");
         } finally {
             setLoading(false);
         }
     };
 
-    // 첫 마운트 시 목록 가져오기
+    // 컴포넌트가 처음 뜰 때 실행
     useEffect(() => {
         if (token) fetchSessions();
     }, [token]);
 
+    // 마지막에 이 함수들을 모두 내보내야 ChatScreen에서 쓸 수 있습니다.
     return { messages, sessions, loading, startNewChat, sendMessage, fetchSessions };
 };
