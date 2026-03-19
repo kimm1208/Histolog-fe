@@ -1,18 +1,33 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export const MessageItem = ({ role, content }) => (
-    <View style={styles.messageRow}>
-        <View style={styles.avatarContainer}>
-            {/* 사용자(User)와 히스톨로그(Histolog)의 첫 글자를 아바타로 사용합니다. */}
-            <Text style={styles.avatarText}>{role === 'user' ? 'U' : 'H'}</Text>
+export const MessageItem = ({ role, content }) => {
+    const isUser = role === 'user'; // 사용자인지 확인
+
+    return (
+        // 1. row-reverse를 사용하여 아바타와 내용을 좌우 반전시킵니다.
+        <View style={[styles.messageRow, isUser && { flexDirection: 'row-reverse' }]}>
+            <View style={[
+                styles.avatarContainer,
+                // 2. 방향에 따라 마진(여백) 위치를 조정합니다.
+                isUser ? { marginLeft: 12, marginRight: 0 } : { marginRight: 12 }
+            ]}>
+                <Text style={styles.avatarText}>{isUser ? 'U' : 'H'}</Text>
+            </View>
+
+            {/* 3. 사용자의 경우 텍스트 내용들을 우측으로 밀어냅니다. */}
+            <View style={[styles.contentContainer, isUser && { alignItems: 'flex-end' }]}>
+                <Text style={styles.roleLabel}>{isUser ? '나' : 'Histolog'}</Text>
+                <Text style={[
+                    styles.messageText,
+                    isUser && { textAlign: 'right' } // 4. 텍스트 자체도 우측 정렬
+                ]}>
+                    {content}
+                </Text>
+            </View>
         </View>
-        <View style={styles.contentContainer}>
-            <Text style={styles.roleLabel}>{role === 'user' ? '나' : 'Histolog'}</Text>
-            <Text style={styles.messageText}>{content}</Text>
-        </View>
-    </View>
-);
+    );
+};
 
 const styles = StyleSheet.create({
     messageRow: { flexDirection: 'row', marginBottom: 28 },
