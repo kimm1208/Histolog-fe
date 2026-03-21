@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
-const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
+const LoginScreen = ({ onLoginSuccess, onGoToSignup, onGoToGoogleLogin, baseUrl }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -55,6 +55,16 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
                 <Text style={styles.buttonText}>로그인</Text>
             </TouchableOpacity>
 
+            <View style={styles.dividerContainer}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>또는</Text>
+                <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity style={styles.googleButton} onPress={onGoToGoogleLogin}>
+                <Text style={styles.googleButtonText}>🔍  Google로 로그인</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity onPress={onGoToSignup}>
                 <Text style={styles.linkText}>처음이신가요? 회원가입 하기</Text>
             </TouchableOpacity>
@@ -69,6 +79,11 @@ const styles = StyleSheet.create({
     input: { backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#DDD' },
     button: { backgroundColor: '#5D4037', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 10 },
     buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+    dividerContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
+    dividerLine: { flex: 1, height: 1, backgroundColor: '#DDD' },
+    dividerText: { marginHorizontal: 10, color: '#8D6E63', fontSize: 13 },
+    googleButton: { backgroundColor: '#fff', padding: 15, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#DDD' },
+    googleButtonText: { color: '#5D4037', fontWeight: 'bold', fontSize: 16 },
     linkText: { color: '#5D4037', textAlign: 'center', marginTop: 25, fontWeight: '500' }
 });
 
