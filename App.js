@@ -5,7 +5,6 @@ import * as Linking from 'expo-linking';
 import LoginScreen from './src/components/LoginScreen';
 import SignupScreen from './src/components/SignupScreen';
 import ChatScreen from './src/components/ChatScreen';
-import GoogleLoginPage from './src/components/GoogleLoginPage';
 
 // 실제 백엔드 서버 주소를 입력하세요.
 const BASE_URL = 'https://histolog.app';
@@ -41,17 +40,6 @@ export default function App() {
     }
   }, [url]);
 
-  // 화면 전환 제어
-  if (screen === 'googleLogin') {
-    return (
-      <GoogleLoginPage
-        baseUrl={BASE_URL}
-        onLoginSuccess={handleLoginSuccess}
-        onBack={() => setScreen('login')}
-      />
-    );
-  }
-
   if (screen === 'signup') {
     return (
       <SignupScreen
@@ -76,7 +64,6 @@ export default function App() {
       baseUrl={BASE_URL}
       onLoginSuccess={handleLoginSuccess}
       onGoToSignup={() => setScreen('signup')}
-      onGoToGoogleLogin={() => setScreen('googleLogin')}
     />
   );
 }

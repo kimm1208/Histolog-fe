@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 
-const LoginScreen = ({ onLoginSuccess, onGoToSignup, onGoToGoogleLogin, baseUrl }) => {
+const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -30,6 +32,37 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, onGoToGoogleLogin, baseUrl 
             Alert.alert("에러", "서버와 연결할 수 없습니다. 네트워크 상태를 확인하세요.");
         }
     };
+
+    const handleGoogleLogin = async () => {
+            try {
+                const appRedirect = Linking.createURL('google-auth');
+                const authUrl = `${baseUrl}/api/auth/google/initiate?appRedirect=${encodeURIComponent(appRedirect)}`;
+    
+                if (Platform.OS === 'web') {
+                    window.location.assign(authUrl);
+                    return;
+                }
+    
+                const result = await WebBrowser.openAuthSessionAsync(
+                    authUrl,
+                    appRedirect
+                );
+    
+                if (result.type === 'success') {
+                    const tokenMatch = result.url.match(/[?&]token=([^&]+)/);
+                    if (tokenMatch) {
+                        onLoginSuccess(decodeURIComponent(tokenMatch[1]));
+                    } else {
+                        Alert.alert('로그인 실패', '토큰을 받지 못했습니다. 다시 시도해주세요.');
+                    }
+                } else if (result.type !== 'cancel') {
+                    Alert.alert('로그인 실패', '구글 로그인 창을 열지 못했습니다. 다시 시도해주세요.');
+                }
+            } catch (err) {
+                console.error('Google login error:', err);
+                Alert.alert('에러', '구글 로그인 창을 여는 중 문제가 발생했습니다.');
+            }
+        };
 
     return (
         <View style={styles.container}>
@@ -61,7 +94,7 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, onGoToGoogleLogin, baseUrl 
                 <View style={styles.dividerLine} />
             </View>
 
-            <TouchableOpacity style={styles.googleButton} onPress={onGoToGoogleLogin}>
+            <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
                 <Text style={styles.googleButtonText}>🔍  Google로 로그인</Text>
             </TouchableOpacity>
 
