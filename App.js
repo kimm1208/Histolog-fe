@@ -64,7 +64,6 @@ export default function App() {
       baseUrl={BASE_URL}
       onLoginSuccess={handleLoginSuccess}
       onGoToSignup={() => setScreen('signup')}
-      onGoToGoogleLogin={() => setScreen('googleLogin')}
     />
   );
 }
