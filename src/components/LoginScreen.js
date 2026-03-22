@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
+import { AntDesign } from '@expo/vector-icons'
 
 const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
     const [username, setUsername] = useState('');
@@ -95,7 +96,10 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
             </View>
 
             <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
-                <Text style={styles.googleButtonText}>🔍  Google로 로그인</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <AntDesign name="google" size={20} color="#5D4037"></AntDesign>
+                    <Text style={styles.googleButtonText}>  Google로 로그인</Text>    
+                </View>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={onGoToSignup}>
