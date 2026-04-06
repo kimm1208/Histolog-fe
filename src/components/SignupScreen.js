@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
 
 const SignupScreen = ({ onSignupSuccess, onBackToLogin, baseUrl }) => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [popup, setPopup] = useState({visible: false, title: '', message: '', onClose: null});
+
+    const showPopup = (title, message, onClose) => {
+        setPopup({visible: true, title, message, onClose});
+    };
+    
+    const closePopup = () => {
+        const callback = popup.onClose;
+        setPopup({visible: false, title: '', message: '', onClose: null});
+        if(callback) callback();
+    };
 
     const handleSignup = async () => {
         if (!username || !email || !password) {
-            Alert.alert("알림", "모든 항목을 입력해야 합니다.");
+            showPopup("에러", "모든 항목을 입력해야 합니다.")
             return;
         }
 
@@ -22,13 +33,12 @@ const SignupScreen = ({ onSignupSuccess, onBackToLogin, baseUrl }) => {
             const data = await res.json();
 
             if (res.ok) {
-                Alert.alert("환영합니다!", "회원가입이 완료되었습니다. 로그인해주세요.");
-                onSignupSuccess();
-            } else {
-                Alert.alert("가입 실패", data.message || "이미 사용 중인 정보이거나 형식이 잘못되었습니다.");
+                showPopup("환영합니다!", "회원가입이 완료되었습니다. 로그인해주세요.", onSignupSuccess);
+            }else{
+                showPopup("로그인 실패", data.message || "아이디 또는 비밀번호를 확인하세요.");
             }
         } catch (err) {
-            Alert.alert("에러", "서버 연결에 실패했습니다.");
+            showPopup("에러", "서버와 연결할 수 없습니다. 네트워크 상태를 확인하세요.");
         }
     };
 
@@ -48,7 +58,24 @@ const SignupScreen = ({ onSignupSuccess, onBackToLogin, baseUrl }) => {
             <TouchableOpacity onPress={onBackToLogin}>
                 <Text style={styles.linkText}>이미 계정이 있나요? 로그인으로 돌아가기</Text>
             </TouchableOpacity>
+
+            <Modal visible={popup.visible} transparent animationType="fade" onRequestClose={closePopup}>
+                <View style={styles.overlay}>
+                    <View style={styles.popupBox}>
+                        <View style={styles.popupIconCircle}>
+                            <Text style={styles.popupIcon}>!</Text>
+                        </View>
+                        <Text style={styles.popupTitle}>{popup.title}</Text>
+                        <Text style={styles.popupMessage}>{popup.message}</Text>
+                        <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
+                            <Text style={styles.popupButtonText}>확인</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
+
+        
     );
 };
 
@@ -59,7 +86,15 @@ const styles = StyleSheet.create({
     input: { backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#DDD' },
     button: { backgroundColor: '#5D4037', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 10 },
     buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-    linkText: { color: '#5D4037', textAlign: 'center', marginTop: 25 }
+    linkText: { color: '#5D4037', textAlign: 'center', marginTop: 25 },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+    popupBox: { backgroundColor: '#fff', borderRadius: 20, paddingVertical: 32, paddingHorizontal: 28, width: '82%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 },
+    popupIconCircle: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#5D4037', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+    popupIcon: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
+    popupTitle: { fontSize: 20, fontWeight: 'bold', color: '#5D4037', marginBottom: 10 },
+    popupMessage: { fontSize: 14, color: '#666', textAlign: 'center', lineHeight: 21, marginBottom: 24 },
+    popupButton: { backgroundColor: '#5D4037', paddingVertical: 12, paddingHorizontal: 40, borderRadius: 10 },
+    popupButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 }
 });
 
 export default SignupScreen;

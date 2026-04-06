@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { AntDesign } from '@expo/vector-icons'
@@ -7,10 +7,21 @@ import { AntDesign } from '@expo/vector-icons'
 const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [popup, setPopup] = useState({visible: false, title: '', message: '', onClose: null});
+
+    const showPopup = (title, message, onClose) => {
+        setPopup({visible: true, title, message, onClose});
+    };
+    
+    const closePopup = () => {
+        const callback = popup.onClose;
+        setPopup({visible: false, title: '', message: '', onClose: null});
+        if(callback) callback();
+    };
 
     const handleLogin = async () => {
         if (!username || !password) {
-            Alert.alert("알림", "아이디와 비밀번호를 모두 입력해주세요.");
+            showPopup("알림", "아이디와 비밀번호를 모두 입력해주세요.")
             return;
         }
 
@@ -26,11 +37,11 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
             if (res.ok) {
                 // 성공 시 상위 App.js로 토큰을 전달합니다.
                 onLoginSuccess(data.access_token);
-            } else {
-                Alert.alert("로그인 실패", data.message || "아이디 또는 비밀번호를 확인하세요.");
+            }else{
+                showPopup("로그인 실패", data.message || "아이디 또는 비밀번호를 확인하세요.");
             }
         } catch (err) {
-            Alert.alert("에러", "서버와 연결할 수 없습니다. 네트워크 상태를 확인하세요.");
+            showPopup("에러", "서버와 연결할 수 없습니다. 네트워크 상태를 확인하세요.")
         }
     };
 
@@ -54,14 +65,14 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
                 if (tokenMatch) {
                     onLoginSuccess(decodeURIComponent(tokenMatch[1]));
                 } else {
-                    Alert.alert('로그인 실패', '토큰을 받지 못했습니다. 다시 시도해주세요.');
+                    showPopup("로그인 실패", "토큰을 받지 못했습니다. 다시 시도해주세요.");
                 }
             } else if (result.type !== 'cancel') {
-                Alert.alert('로그인 실패', '구글 로그인 창을 열지 못했습니다. 다시 시도해주세요.');
+                showPopup("로그인 실패", "구글 로그인 창을 열지 못했습니다. 다시 시도해주세요.");
             }
         } catch (err) {
             console.error('Google login error:', err);
-            Alert.alert('에러', '구글 로그인 창을 여는 중 문제가 발생했습니다.');
+            showPopup("에러", "구글 로그인 창을 여는 중 문제가 발생했습니다.");
         }
     };
 
@@ -84,7 +95,7 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
 
         } catch (err) {
             console.error('Naver login error: ', err);
-            Alert.alert('에러', '네이버 로그인 창을 여는 중 문제가 발생했습니다.');
+            showPopup("에러", "네이버 로그인 창을 여는 중 문제가 발생했습니다.");
         }
     };
 
@@ -143,6 +154,21 @@ const LoginScreen = ({ onLoginSuccess, onGoToSignup, baseUrl }) => {
             <TouchableOpacity onPress={onGoToSignup}>
                 <Text style={styles.linkText}>처음이신가요? 회원가입 하기</Text>
             </TouchableOpacity>
+
+            <Modal visible={popup.visible} transparent animationType="fade" onRequestClose={closePopup}>
+                <View style={styles.overlay}>
+                    <View style={styles.popupBox}>
+                        <View style={styles.popupIconCircle}>
+                            <Text style={styles.popupIcon}>!</Text>
+                        </View>
+                        <Text style={styles.popupTitle}>{popup.title}</Text>
+                        <Text style={styles.popupMessage}>{popup.message}</Text>
+                        <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
+                            <Text style={styles.popupButtonText}>확인</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -164,7 +190,15 @@ const styles = StyleSheet.create({
     socialLoginButtonText: { color: '#5D4037', fontWeight: 'bold', fontSize: 16 },
     naverLogoBadge: { width: 22, height: 22, borderRadius: 4, backgroundColor: '#03C75A', alignItems: 'center', justifyContent: 'center' },
     naverLogoText: { color: '#fff', fontWeight: '900', fontSize: 15 },
-    linkText: { color: '#5D4037', textAlign: 'center', marginTop: 25, fontWeight: '500' }
+    linkText: { color: '#5D4037', textAlign: 'center', marginTop: 25, fontWeight: '500' },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+    popupBox: { backgroundColor: '#fff', borderRadius: 20, paddingVertical: 32, paddingHorizontal: 28, width: '82%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 },
+    popupIconCircle: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#5D4037', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+    popupIcon: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
+    popupTitle: { fontSize: 20, fontWeight: 'bold', color: '#5D4037', marginBottom: 10 },
+    popupMessage: { fontSize: 14, color: '#666', textAlign: 'center', lineHeight: 21, marginBottom: 24 },
+    popupButton: { backgroundColor: '#5D4037', paddingVertical: 12, paddingHorizontal: 40, borderRadius: 10 },
+    popupButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 }
 });
 
 export default LoginScreen;
