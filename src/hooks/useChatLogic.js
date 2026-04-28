@@ -24,13 +24,13 @@ export const useChatLogic = (baseUrl, token) => {
     const startNewChat = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${baseUrl}/api/chat/sessions`, {
+            const res = await fetch(`${baseUrl}/api/chat`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
             if (res.ok) {
-                setSessionId(data.session);
+                setSessionId(data.chat_id);
                 setMessages([]);
                 fetchSessions();
             }
@@ -69,7 +69,7 @@ export const useChatLogic = (baseUrl, token) => {
 
     // 컴포넌트가 처음 뜰 때 실행
     useEffect(() => {
-        if (token) fetchSessions();
+        if(token) startNewChat();
     }, [token]);
 
     // 마지막에 이 함수들을 모두 내보내야 ChatScreen에서 쓸 수 있습니다.
