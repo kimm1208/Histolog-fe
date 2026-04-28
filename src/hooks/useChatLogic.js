@@ -43,9 +43,9 @@ export const useChatLogic = (baseUrl, session) => {
     };
 
     // 3. 메시지 전송
-    const sendMessage = async (content) => {
-        if (!content) return;
-        setMessages(prev => [...prev, { role: 'user', content }]);
+    const sendMessage = async (message) => {
+        if (!message) return;
+        setMessages(prev => [...prev, { role: 'user', message }]);
         setLoading(true);
 
         try {
@@ -55,11 +55,11 @@ export const useChatLogic = (baseUrl, session) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${session}`
                 },
-                body: JSON.stringify({ content })
+                body: JSON.stringify({ message })
             });
             const data = await res.json();
             if (res.ok) {
-                setMessages(prev => [...prev, { role: 'assistant', content: data.data }]);
+                setMessages(prev => [...prev, { role: 'assistant', message: data.message }]);
             }
         } catch (err) {
             Alert.alert("연결 실패", "서버에 연결할 수 없습니다.");

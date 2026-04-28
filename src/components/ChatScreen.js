@@ -93,7 +93,7 @@ export default function ChatScreen({ baseUrl, token, onLogout }) {
                     <FlatList
                         data={messages}
                         keyExtractor={(_, i) => i.toString()}
-                        renderItem={({ item }) => <MessageItem role={item.role} content={item.content} />}
+                        renderItem={({ item }) => <MessageItem role={item.role} content={item.message} />}
                         contentContainerStyle={styles.chatList}
                     />
                 ) : (
