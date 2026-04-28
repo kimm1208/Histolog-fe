@@ -32,7 +32,7 @@ const IntroView = () => (
     </View>
 );
 
-export default function ChatScreen({ baseUrl, token }) {
+export default function ChatScreen({ baseUrl, token, onLogout }) {
     const { messages, sessions, loading, startNewChat, sendMessage } = useChatLogic(baseUrl, token);
     const [inputText, setInputText] = useState('');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -75,6 +75,7 @@ export default function ChatScreen({ baseUrl, token }) {
                     sessions={sessions}
                     onNewChat={() => { startNewChat(); closeSidebar(); }}
                     onSessionPress={(id) => { closeSidebar(); }}
+                    onLogout={onLogout}
                 />
             </Animated.View>
 
