@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 
-export const useChatLogic = (baseUrl, token) => {
+export const useChatLogic = (baseUrl, session) => {
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [sessionId, setSessionId] = useState('');
@@ -10,8 +10,8 @@ export const useChatLogic = (baseUrl, token) => {
     // 1. 대화 목록 가져오기
     const fetchSessions = async () => {
         try {
-            const res = await fetch(`${baseUrl}/api/chat/sessions`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const res = await fetch(`${baseUrl}/api/chats`, {
+                headers: { 'Authorization': `Bearer ${session}` }
             });
             const data = await res.json();
             if (res.ok) setSessions(data.sessions || []);
@@ -22,11 +22,12 @@ export const useChatLogic = (baseUrl, token) => {
 
     // 2. 새 대화 시작 (이 함수가 정의되어 있어야 합니다!)
     const startNewChat = async () => {
+        console.log('startNewChat session:', session);
         setLoading(true);
         try {
-            const res = await fetch(`${baseUrl}/api/chat`, {
+            const res = await fetch(`${baseUrl}/api/chats`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${session}` }
             });
             const data = await res.json();
             if (res.ok) {
@@ -48,11 +49,11 @@ export const useChatLogic = (baseUrl, token) => {
         setLoading(true);
 
         try {
-            const res = await fetch(`${baseUrl}/api/chat/sessions/${sessionId}/messages`, {
+            const res = await fetch(`${baseUrl}/api/chats/${sessionId}/messages`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${session}`
                 },
                 body: JSON.stringify({ content })
             });
@@ -69,8 +70,8 @@ export const useChatLogic = (baseUrl, token) => {
 
     // 컴포넌트가 처음 뜰 때 실행
     useEffect(() => {
-        if(token) startNewChat();
-    }, [token]);
+        if(session) startNewChat();
+    }, [session]);
 
     // 마지막에 이 함수들을 모두 내보내야 ChatScreen에서 쓸 수 있습니다.
     return { messages, sessions, loading, startNewChat, sendMessage, fetchSessions };
