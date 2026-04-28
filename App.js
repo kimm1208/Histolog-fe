@@ -7,9 +7,7 @@ import LoginScreen from './src/components/LoginScreen';
 import SignupScreen from './src/components/SignupScreen';
 import ChatScreen from './src/components/ChatScreen';
 
-// 실제 백엔드 서버 주소를 입력하세요.
-const BASE_URL = 'https://histolog.app';
-
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
 export default function App() {
   const [screen, setScreen] = useState('login'); // 'login', 'signup', 'chat', 'googleLogin'
@@ -31,6 +29,13 @@ export default function App() {
     await AsyncStorage.setItem('session', accessToken);
     setToken(accessToken);
     setScreen('chat');
+  };
+
+  // 로그아웃 시 호출
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('session');
+    setToken('');
+    setScreen('login');
   };
 
   useEffect(() => {
@@ -67,6 +72,7 @@ export default function App() {
       <ChatScreen
         baseUrl={BASE_URL}
         token={token}
+        onLogout={handleLogout}
       />
     );
   }
