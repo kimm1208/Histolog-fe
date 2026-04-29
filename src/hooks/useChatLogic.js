@@ -14,7 +14,7 @@ export const useChatLogic = (baseUrl, session) => {
                 headers: { 'Authorization': `Bearer ${session}` }
             });
             const data = await res.json();
-            if (res.ok) setSessions(data.sessions || []);
+            if (res.ok) setSessions(data.chats || []);
         } catch (err) {
             console.error("세션 목록 로드 실패:", err);
         }
@@ -73,6 +73,28 @@ export const useChatLogic = (baseUrl, session) => {
         if(session) startNewChat();
     }, [session]);
 
+    // 4. 특정 채팅 내역 불러오기
+    const loadChat = async (chatId) => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${baseUrl}/api/chats/${chatId}/messages`, {
+                headers: { 'Authorization': `Bearer ${session}` }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setSessionId(chatId);
+                setMessages(data.map(m => ({
+                    role: m.type.toLowerCase(),
+                    message: m.message,
+                })));
+            }
+        } catch (err) {
+            console.error("대화 내역 로드 실패:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // 마지막에 이 함수들을 모두 내보내야 ChatScreen에서 쓸 수 있습니다.
-    return { messages, sessions, loading, startNewChat, sendMessage, fetchSessions };
+    return { messages, sessions, loading, startNewChat, sendMessage, fetchSessions, loadChat };
 };

@@ -71,7 +71,7 @@ const IntroView = () => (
 );
 
 export default function ChatScreen({ baseUrl, token, onLogout }) {
-    const { messages, sessions, loading, startNewChat, sendMessage } = useChatLogic(baseUrl, token);
+    const { messages, sessions, loading, startNewChat, sendMessage, loadChat } = useChatLogic(baseUrl, token);
     const [inputText, setInputText] = useState('');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
@@ -112,7 +112,7 @@ export default function ChatScreen({ baseUrl, token, onLogout }) {
                 <Sidebar
                     sessions={sessions}
                     onNewChat={() => { startNewChat(); closeSidebar(); }}
-                    onSessionPress={(id) => { closeSidebar(); }}
+                    onSessionPress={(id) => { loadChat(id); closeSidebar(); }}
                     onLogout={onLogout}
                 />
             </Animated.View>
