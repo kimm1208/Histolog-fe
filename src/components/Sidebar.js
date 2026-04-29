@@ -13,11 +13,11 @@ const Sidebar = ({ sessions, onNewChat, onSessionPress, onLogout }) => {
 
             <FlatList
                 data={sessions}
-                keyExtractor={(item) => item.session_id ? item.session_id.toString() : Math.random().toString()}
+                keyExtractor={(item) => item.chat_id ? item.chat_id.toString() : Math.random().toString()}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.sessionItem}
-                        onPress={() => onSessionPress(item.session_id)}
+                        onPress={() => onSessionPress(item.chat_id)}
                     >
                         <Text style={styles.sessionTitle} numberOfLines={1}>
                             {item.title || '지난 대화'}

@@ -1,8 +1,46 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View, Text, FlatList, StyleSheet, SafeAreaView, Animated,
     Dimensions, PanResponder, KeyboardAvoidingView, Platform, TouchableOpacity
 } from 'react-native';
+
+const TypingIndicator = () => {
+    const dots = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
+
+    useEffect(() => {
+        const animations = dots.map((dot, i) =>
+            Animated.loop(
+                Animated.sequence([
+                    Animated.delay(i * 150),
+                    Animated.timing(dot, { toValue: 1, duration: 300, useNativeDriver: true }),
+                    Animated.timing(dot, { toValue: 0, duration: 300, useNativeDriver: true }),
+                    Animated.delay(450 - i * 150),
+                ])
+            )
+        );
+        animations.forEach(a => a.start());
+        return () => animations.forEach(a => a.stop());
+    }, []);
+
+    return (
+        <View style={typingStyles.row}>
+            <View style={typingStyles.avatar}><Text style={typingStyles.avatarText}>H</Text></View>
+            <View style={typingStyles.bubble}>
+                {dots.map((dot, i) => (
+                    <Animated.View key={i} style={[typingStyles.dot, { opacity: dot }]} />
+                ))}
+            </View>
+        </View>
+    );
+};
+
+const typingStyles = StyleSheet.create({
+    row: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 28 },
+    avatar: { width: 32, height: 32, borderRadius: 8, backgroundColor: '#F3F3F3', justifyContent: 'center', alignItems: 'center', marginRight: 8 },
+    avatarText: { fontSize: 16, fontWeight: 'bold', color: '#5D4037' },
+    bubble: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F3F3F3', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, gap: 4 },
+    dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#5D4037' },
+});
 
 import Sidebar from './Sidebar';
 import ChatInput from './ChatInput';
@@ -33,7 +71,7 @@ const IntroView = () => (
 );
 
 export default function ChatScreen({ baseUrl, token, onLogout }) {
-    const { messages, sessions, loading, startNewChat, sendMessage } = useChatLogic(baseUrl, token);
+    const { messages, sessions, loading, startNewChat, sendMessage, loadChat } = useChatLogic(baseUrl, token);
     const [inputText, setInputText] = useState('');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
@@ -74,7 +112,7 @@ export default function ChatScreen({ baseUrl, token, onLogout }) {
                 <Sidebar
                     sessions={sessions}
                     onNewChat={() => { startNewChat(); closeSidebar(); }}
-                    onSessionPress={(id) => { closeSidebar(); }}
+                    onSessionPress={(id) => { loadChat(id); closeSidebar(); }}
                     onLogout={onLogout}
                 />
             </Animated.View>
@@ -95,6 +133,7 @@ export default function ChatScreen({ baseUrl, token, onLogout }) {
                         keyExtractor={(_, i) => i.toString()}
                         renderItem={({ item }) => <MessageItem role={item.role} content={item.message} />}
                         contentContainerStyle={styles.chatList}
+                        ListFooterComponent={loading ? <TypingIndicator /> : null}
                     />
                 ) : (
                     <IntroView />
