@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View, Text, FlatList, StyleSheet, SafeAreaView, Animated,
-    Dimensions, PanResponder, KeyboardAvoidingView, Platform, TouchableOpacity
+    Dimensions, PanResponder, KeyboardAvoidingView, Platform, TouchableOpacity, Modal
 } from 'react-native';
 
 const TypingIndicator = () => {
@@ -71,7 +71,7 @@ const IntroView = () => (
 );
 
 export default function ChatScreen({ baseUrl, token, onLogout }) {
-    const { messages, sessions, loading, startNewChat, sendMessage, loadChat } = useChatLogic(baseUrl, token);
+    const { messages, sessions, loading, error, clearError, startNewChat, sendMessage, loadChat } = useChatLogic(baseUrl, token);
     const [inputText, setInputText] = useState('');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
@@ -150,6 +150,18 @@ export default function ChatScreen({ baseUrl, token, onLogout }) {
             </View>
 
             {isSidebarOpen && <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={closeSidebar} />}
+
+            <Modal transparent animationType="fade" visible={!!error} onRequestClose={clearError}>
+                <View style={styles.modalBackdrop}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalTitle}>오류</Text>
+                        <Text style={styles.modalMessage}>{error}</Text>
+                        <TouchableOpacity style={styles.modalButton} onPress={clearError}>
+                            <Text style={styles.modalButtonText}>확인</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -194,4 +206,12 @@ const styles = StyleSheet.create({
     },
     tipTitle: { fontSize: 14, fontWeight: '700', color: '#5D4037', marginBottom: 10 },
     tipText: { fontSize: 13, color: '#777', marginBottom: 8, lineHeight: 18 },
+
+    // --- 오류 모달 스타일 ---
+    modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+    modalBox: { width: '80%', backgroundColor: '#FFF', borderRadius: 16, padding: 24, alignItems: 'center' },
+    modalTitle: { fontSize: 16, fontWeight: '700', color: '#1A1A1A', marginBottom: 10 },
+    modalMessage: { fontSize: 14, color: '#555', textAlign: 'center', lineHeight: 20, marginBottom: 20 },
+    modalButton: { backgroundColor: '#5D4037', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 32 },
+    modalButtonText: { color: '#FFF', fontSize: 15, fontWeight: '600' },
 });

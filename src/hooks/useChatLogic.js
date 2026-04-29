@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
 
 export const useChatLogic = (baseUrl, session) => {
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [sessionId, setSessionId] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const clearError = () => setError(null);
 
     // 1. 대화 목록 가져오기
     const fetchSessions = async () => {
@@ -16,7 +18,7 @@ export const useChatLogic = (baseUrl, session) => {
             const data = await res.json();
             if (res.ok) setSessions(data.chats || []);
         } catch (err) {
-            console.error("세션 목록 로드 실패:", err);
+            setError("세션 목록을 불러오지 못했습니다.");
         }
     };
 
@@ -36,7 +38,7 @@ export const useChatLogic = (baseUrl, session) => {
                 fetchSessions();
             }
         } catch (err) {
-            console.error("새 대화 시작 실패:", err);
+            setError("새 대화를 시작하지 못했습니다.");
         } finally {
             setLoading(false);
         }
@@ -62,7 +64,7 @@ export const useChatLogic = (baseUrl, session) => {
                 setMessages(prev => [...prev, { role: 'assistant', message: data.message }]);
             }
         } catch (err) {
-            Alert.alert("연결 실패", "서버에 연결할 수 없습니다.");
+            setError("서버에 연결할 수 없습니다.");
         } finally {
             setLoading(false);
         }
@@ -89,12 +91,12 @@ export const useChatLogic = (baseUrl, session) => {
                 })));
             }
         } catch (err) {
-            console.error("대화 내역 로드 실패:", err);
+            setError("대화 내역을 불러오지 못했습니다.");
         } finally {
             setLoading(false);
         }
     };
 
     // 마지막에 이 함수들을 모두 내보내야 ChatScreen에서 쓸 수 있습니다.
-    return { messages, sessions, loading, startNewChat, sendMessage, fetchSessions, loadChat };
+    return { messages, sessions, loading, error, clearError, startNewChat, sendMessage, fetchSessions, loadChat };
 };
