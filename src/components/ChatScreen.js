@@ -125,6 +125,7 @@ export default function ChatScreen({ baseUrl, token, onLogout }) {
                     onNewChat={() => { startNewChat(); closeSidebar(); }}
                     onSessionPress={(id) => { loadChat(id); closeSidebar(); }}
                     onLogout={onLogout}
+                    isOpen={isSidebarOpen}
                 />
             </Animated.View>
 
