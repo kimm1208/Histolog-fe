@@ -54,6 +54,10 @@ export const useChatLogic = (baseUrl, session) => {
             const data = await res.json();
             if (res.ok) {
                 setMessages(prev => [...prev, { role: 'assistant', message: data.message }]);
+            } else if (data?.code === 'T001') {
+                setError("세션 한도에 도달했습니다.");
+            } else {
+                setError("서버에 연결할 수 없습니다.");
             }
         } catch (err) {
             setError("서버에 연결할 수 없습니다.");
